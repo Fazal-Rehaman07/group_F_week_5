@@ -87,6 +87,21 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update an existing task
+// func updateTask(w http.ResponseWriter, r *http.Request, id int) {
+// 	var updatedTask Task
+// 	if err := json.NewDecoder(r.Body).Decode(&updatedTask); err != nil {
+// 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+// 		return
+// 	}
+// 	updatedTask.ID = id
+// 	if updateExistingTask(&updatedTask) {
+// 		json.NewEncoder(w).Encode(updatedTask)
+// 	} else {
+// 		http.Error(w, "Task not found", http.StatusNotFound)
+// 	}
+// }
+
+// New Update an existing task
 func updateTask(w http.ResponseWriter, r *http.Request, id int) {
 	var updatedTask Task
 	if err := json.NewDecoder(r.Body).Decode(&updatedTask); err != nil {
@@ -94,11 +109,14 @@ func updateTask(w http.ResponseWriter, r *http.Request, id int) {
 		return
 	}
 	updatedTask.ID = id
-	if updateExistingTask(&updatedTask) {
-		json.NewEncoder(w).Encode(updatedTask)
-	} else {
-		http.Error(w, "Task not found", http.StatusNotFound)
+	for i, task := range tasks {
+		if task.ID == updatedTask.ID {
+			tasks[i] = updatedTask
+			json.NewEncoder(w).Encode(updatedTask)
+			return
+		}
 	}
+	http.Error(w, "Task not found", http.StatusNotFound)
 }
 
 // Delete a task by ID
@@ -121,16 +139,16 @@ func deleteTask(w http.ResponseWriter, r *http.Request, id int) {
 // 	return Task{}, false
 // }
 
-// UpdateTask updates an existing task
-func updateExistingTask(updatedTask *Task) bool {
-	for i, task := range tasks {
-		if task.ID == updatedTask.ID {
-			tasks[i] = *updatedTask
-			return true
-		}
-	}
-	return false
-}
+// // UpdateTask updates an existing task
+// func updateExistingTask(updatedTask *Task) bool {
+// 	for i, task := range tasks {
+// 		if task.ID == updatedTask.ID {
+// 			tasks[i] = *updatedTask
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 // DeleteTask deletes a task by ID
 func deleteExistingTask(id int) bool {
